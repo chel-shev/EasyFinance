@@ -1,0 +1,10 @@
+package ru.ixec.easyfinance.repositories;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.CrudRepository;
+import ru.ixec.easyfinance.entity.StatisticCategory;
+
+public interface StatisticCategoryRepository extends CrudRepository<StatisticCategory, Long> {
+
+    Iterable<StatisticCategory> findAll(Sort by);
+}

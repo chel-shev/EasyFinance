@@ -1,0 +1,34 @@
+{
+  "properties": [
+    {
+      "name": "easy.finance.receipt.api.url",
+      "type": "java.lang.String",
+      "description": "Description for easy.finance.receipt.api.url."
+    },
+    {
+      "name": "easy.finance.receipt.api.token",
+      "type": "java.lang.String",
+      "description": "Description for easy.finance.receipt.api.token."
+    },
+    {
+      "name": "easy.finance.bot.api.username",
+      "type": "java.lang.String",
+      "description": "Description for easy.finance.bot.api.username."
+    },
+    {
+      "name": "easy.finance.bot.api.token",
+      "type": "java.lang.String",
+      "description": "Description for easy.finance.bot.api.token."
+    },
+    {
+      "name": "easy.finance.proxy.username",
+      "type": "java.lang.String",
+      "description": "Description for easy.finance.proxy.username."
+    },
+    {
+      "name": "easy.finance.proxy.password",
+      "type": "java.lang.String",
+      "description": "Description for easy.finance.proxy.password."
+    }
+  ]
+}
