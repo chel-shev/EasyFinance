@@ -3,16 +3,19 @@ package ru.ixec.easyfinance.bot;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class DecoderQR {
+@Slf4j
+public class DecoderPhotoQR {
 
-    public static String decode(java.io.File qrCodeImage) throws IOException {
+    public static String decode(File qrCodeImage) throws IOException {
         BufferedImage bufferedImage = ImageIO.read(qrCodeImage);
         LuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
         BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
@@ -23,8 +26,8 @@ public class DecoderQR {
             Result result = new MultiFormatReader().decode(bitmap, tmpHintsMap);
             return result.getText();
         } catch (NotFoundException e) {
-            System.out.println("There is no QR code in the image");
-            return "";
+            log.debug("There is no QR code in the image");
+            return null;
         }
     }
 }

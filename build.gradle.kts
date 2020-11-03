@@ -3,6 +3,12 @@ plugins {
     `maven-publish`
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "ru.ixec.easyfinance.EasyFinanceApplication"
+    }
+}
+
 repositories {
     mavenLocal()
     maven {
@@ -26,7 +32,7 @@ dependencies {
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:2.0.4.RELEASE")
     compileOnly("com.google.android:android:2.3.1")
     implementation("org.projectlombok:lombok:1.18.16")
-    annotationProcessor( "org.projectlombok:lombok:1.18.16")
+    annotationProcessor("org.projectlombok:lombok:1.18.16")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.16")
 }
 

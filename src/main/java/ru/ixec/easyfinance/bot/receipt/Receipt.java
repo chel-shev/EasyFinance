@@ -6,7 +6,9 @@ import lombok.Data;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import ru.ixec.easyfinance.entity.Expense;
 import ru.ixec.easyfinance.entity.ExpenseProduct;
@@ -14,6 +16,8 @@ import ru.ixec.easyfinance.service.ExpenseProductService;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static java.util.Objects.isNull;
 
 /**
  * Парсинг qr кода, из чека
@@ -94,6 +98,8 @@ public class Receipt {
             if (data.startsWith("fp")) setFP(value);
             if (data.startsWith("n")) setN(value);
         });
+        if (isInvalid())
+            throw new NullPointerException();
     }
 
     private Expense getExpenseFromItem(JSONObject item, LocalDateTime dateTime) throws JSONException {
@@ -124,5 +130,18 @@ public class Receipt {
      */
     private String getValue(String data) {
         return data.contains("=") ? data.split("=")[1] : "";
+    }
+
+    public boolean isInvalid() {
+        return isNull(FP) || isNull(N) || isNull(S) || isNull(FD) || isNull(FN) || isNull(T);
+    }
+
+    public void clear() {
+        FP = null;
+        N = null;
+        S = null;
+        FD = null;
+        FN = null;
+        T = null;
     }
 }
