@@ -17,7 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import ru.ixec.easyfinance.bot.receipt.Receipt;
 import ru.ixec.easyfinance.entity.Account;
 import ru.ixec.easyfinance.entity.Expense;
@@ -64,10 +64,10 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
 
     @PostConstruct
     private void register() {
-        TelegramBotsApi botsApi = new TelegramBotsApi();
         try {
-            botsApi.registerBot(this);
-        } catch (TelegramApiRequestException e) {
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+            telegramBotsApi.registerBot(this);
+        } catch (TelegramApiException e) {
             e.printStackTrace();
         }
         replyKeyboardMarkup = new ReplyKeyboardMarkup();
@@ -201,7 +201,7 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
     }
 
     private void sendMessage(Message message, String text, Boolean canceledMode) {
-        SendMessage sendMessage = new SendMessage(message.getChatId(), text);
+        SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(message.getChatId())).text(text).build();
         if (canceledMode)
             sendMessage.setReplyMarkup(cancelKeyboardMarkup);
         else
@@ -230,7 +230,7 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
 
     public String getFilePath(PhotoSize photo) {
         Objects.requireNonNull(photo);
-        if (photo.hasFilePath()) {
+        if (!isNull(photo.getFilePath()) && !photo.getFilePath().isEmpty()) {
             return photo.getFilePath();
         } else {
             GetFile getFileMethod = new GetFile();
