@@ -4,9 +4,9 @@ import lombok.Data;
 
 import javax.persistence.*;
 
-@Entity
 @Data
-public class StatisticCategory {
+@Entity(name = "statistic_category")
+public class StatisticCategoryEntity {
 
     @Id
     @GeneratedValue
@@ -15,5 +15,5 @@ public class StatisticCategory {
     private Long frequency;
 
     @ManyToOne
-    private ExpenseCategory expenseCategory;
+    private ExpenseCategoryEntity expenseCategory;
 }

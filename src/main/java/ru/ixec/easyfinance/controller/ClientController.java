@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import ru.ixec.easyfinance.entity.Client;
+import ru.ixec.easyfinance.entity.ClientEntity;
 import ru.ixec.easyfinance.service.ClientService;
 
 @RequestMapping("/client")
@@ -19,8 +19,8 @@ public class ClientController {
 
     @ResponseBody
     @PostMapping(value = "/signup", produces = MediaType.APPLICATION_JSON_VALUE)
-    Client signUp(@RequestBody Client client) {
-        return clientService.signUp(client);
+    ClientEntity signUp(@RequestBody ClientEntity clientEntity) {
+        return clientService.signUp(clientEntity);
     }
 
     void signIn() {

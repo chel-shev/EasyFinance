@@ -8,8 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.ixec.easyfinance.entity.Expense;
-import ru.ixec.easyfinance.entity.ExpenseProduct;
+import ru.ixec.easyfinance.entity.ExpenseEntity;
+import ru.ixec.easyfinance.entity.ExpenseProductEntity;
 import ru.ixec.easyfinance.service.ExpenseProductService;
 
 import java.time.LocalDateTime;
@@ -64,7 +64,7 @@ public class Receipt {
      */
     private String N;
 
-    public List<Expense> getExpenses() throws JSONException {
+    public List<ExpenseEntity> getExpenses() throws JSONException {
         Webb webb = Webb.create();
         Response<JSONObject> response = webb.post(URL_API)
                 .params(getParams())
@@ -73,16 +73,16 @@ public class Receipt {
         return createItems(response.getBody());
     }
 
-    public List<Expense> createItems(JSONObject jsonReceipt) throws JSONException {
+    public List<ExpenseEntity> createItems(JSONObject jsonReceipt) throws JSONException {
         JSONObject receipt = jsonReceipt.getJSONObject("data").getJSONObject("json");
         LocalDateTime dateTime = LocalDateTime.parse((String) receipt.get("dateTime"));
-        List<Expense> expenseList = new ArrayList<>();
+        List<ExpenseEntity> expenseEntityList = new ArrayList<>();
         JSONArray jsonItems = receipt.getJSONArray("items");
         for (Object itemObject : jsonItems) {
-            Expense expense = getExpenseFromItem((JSONObject) itemObject, dateTime);
-            expenseList.add(expense);
+            ExpenseEntity expenseEntity = getExpenseFromItem((JSONObject) itemObject, dateTime);
+            expenseEntityList.add(expenseEntity);
         }
-        return expenseList;
+        return expenseEntityList;
     }
 
     public void setQR(String qr) {
@@ -100,13 +100,13 @@ public class Receipt {
             throw new NullPointerException();
     }
 
-    private Expense getExpenseFromItem(JSONObject item, LocalDateTime dateTime) throws JSONException {
+    private ExpenseEntity getExpenseFromItem(JSONObject item, LocalDateTime dateTime) throws JSONException {
         Long price = item.getLong("price");
         Long sum = item.getLong("sum");
         Double quantity = item.getDouble("quantity");
         String name = ExpenseProductService.getCleanName(item.getString("name"));
-        ExpenseProduct expenseProduct = new ExpenseProduct(name, null);
-        return new Expense(dateTime, price, sum, quantity, expenseProduct);
+        ExpenseProductEntity expenseProductEntity = new ExpenseProductEntity(name, null);
+        return new ExpenseEntity(dateTime, price, sum, quantity, expenseProductEntity);
     }
 
     private Map<String, Object> getParams() {

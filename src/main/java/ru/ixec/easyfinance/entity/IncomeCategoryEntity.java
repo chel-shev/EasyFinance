@@ -9,8 +9,8 @@ import javax.persistence.OneToMany;
 import java.util.List;
 
 @Data
-@Entity
-public class IncomeCategory {
+@Entity(name = "income_category")
+public class IncomeCategoryEntity {
 
     @Id
     @GeneratedValue
@@ -18,5 +18,5 @@ public class IncomeCategory {
     private String name;
 
     @OneToMany(mappedBy = "incomeCategory")
-    private List<Income> incomeList;
+    private List<IncomeEntity> incomeList;
 }

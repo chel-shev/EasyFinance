@@ -2,7 +2,7 @@ package ru.ixec.easyfinance.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.ixec.easyfinance.entity.Account;
+import ru.ixec.easyfinance.entity.AccountEntity;
 import ru.ixec.easyfinance.repositories.AccountRepository;
 
 @Service
@@ -11,10 +11,10 @@ public class AccountService {
 
     private final AccountRepository ar;
 
-    public Account getAccountByChatId(Long chatId) {
+    public AccountEntity getAccountByChatId(Long chatId) {
         return ar.findByClientChatId(chatId)
                 .stream()
-                .filter(Account::getMain)
+                .filter(AccountEntity::getMain)
                 .findFirst()
                 .orElse(null);
     }

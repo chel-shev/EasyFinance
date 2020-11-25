@@ -6,20 +6,19 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import java.time.LocalDateTime;
 
 @Data
-@Entity
-public class Loan {
+@Entity(name = "income")
+public class IncomeEntity {
 
     @Id
     @GeneratedValue
-    private Long loanId;
+    private Long incomeId;
     private Long amount;
-    private LocalDateTime dateStart;
-    private LocalDateTime dateFinish;
-    private Boolean direction;
 
     @ManyToOne
-    private Account account;
+    private IncomeCategoryEntity incomeCategory;
+
+    @ManyToOne
+    private AccountEntity account;
 }

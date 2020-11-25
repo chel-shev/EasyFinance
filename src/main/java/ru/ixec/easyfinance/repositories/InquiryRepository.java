@@ -1,9 +1,9 @@
 package ru.ixec.easyfinance.repositories;
 
 import org.springframework.data.repository.CrudRepository;
-import ru.ixec.easyfinance.entity.Client;
-import ru.ixec.easyfinance.entity.Inquiry;
+import ru.ixec.easyfinance.entity.ClientEntity;
+import ru.ixec.easyfinance.entity.InquiryEntity;
 
-public interface InquiryRepository extends CrudRepository<Inquiry, Long> {
-    Inquiry findTopByClientOrderByDateDesc(Client client);
+public interface InquiryRepository extends CrudRepository<InquiryEntity, Long> {
+    InquiryEntity findTopByClientOrderByDateDesc(ClientEntity clientEntity);
 }

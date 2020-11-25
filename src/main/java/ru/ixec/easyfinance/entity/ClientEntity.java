@@ -16,10 +16,10 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Client {
+@Entity(name = "client")
+public class ClientEntity {
 
     @Id
     @GeneratedValue
@@ -32,8 +32,8 @@ public class Client {
     private String password;
 
     @OneToMany(mappedBy = "client")
-    private List<Account> accountList;
+    private List<AccountEntity> accountList;
 
     @OneToMany(mappedBy = "client")
-    private List<Inquiry> inquiryList;
+    private List<InquiryEntity> inquiryList;
 }

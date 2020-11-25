@@ -19,16 +19,6 @@
       "name": "easy.finance.bot.api.token",
       "type": "java.lang.String",
       "description": "Description for easy.finance.bot.api.token."
-    },
-    {
-      "name": "easy.finance.proxy.username",
-      "type": "java.lang.String",
-      "description": "Description for easy.finance.proxy.username."
-    },
-    {
-      "name": "easy.finance.proxy.password",
-      "type": "java.lang.String",
-      "description": "Description for easy.finance.proxy.password."
     }
   ]
 }

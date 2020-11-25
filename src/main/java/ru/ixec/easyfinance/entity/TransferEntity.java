@@ -5,20 +5,20 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Data
-@Entity
-public class Income {
+@Entity(name = "transfer")
+public class TransferEntity {
 
     @Id
     @GeneratedValue
-    private Long incomeId;
+    private Long transferId;
     private Long amount;
 
-    @ManyToOne
-    private IncomeCategory incomeCategory;
+    @OneToOne
+    private AccountEntity in;
 
-    @ManyToOne
-    private Account account;
+    @OneToOne
+    private AccountEntity out;
 }

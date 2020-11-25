@@ -2,6 +2,7 @@ package ru.ixec.easyfinance.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,8 +11,9 @@ import javax.persistence.OneToMany;
 import java.util.List;
 
 @Data
-@Entity
-public class ExpenseCategory {
+@NoArgsConstructor
+@Entity(name="expense_category")
+public class ExpenseCategoryEntity {
 
     @Id
     @GeneratedValue
@@ -20,9 +22,9 @@ public class ExpenseCategory {
 
     @JsonIgnore
     @OneToMany(mappedBy = "expenseCategory")
-    private List<ExpenseProduct> productList;
+    private List<ExpenseProductEntity> productList;
 
-    public ExpenseCategory(String name) {
+    public ExpenseCategoryEntity(String name) {
         this.name = name;
     }
 }

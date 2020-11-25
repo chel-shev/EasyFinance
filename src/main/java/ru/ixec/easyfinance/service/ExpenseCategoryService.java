@@ -3,8 +3,8 @@ package ru.ixec.easyfinance.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.ixec.easyfinance.entity.ExpenseCategory;
-import ru.ixec.easyfinance.entity.StatisticCategory;
+import ru.ixec.easyfinance.entity.ExpenseCategoryEntity;
+import ru.ixec.easyfinance.entity.StatisticCategoryEntity;
 import ru.ixec.easyfinance.repositories.ExpenseCategoryRepository;
 import ru.ixec.easyfinance.repositories.StatisticCategoryRepository;
 
@@ -57,9 +57,9 @@ public class ExpenseCategoryService {
         cat.forEach(this::save);
     }
 
-    public ExpenseCategory getCategory(String productName) {
-        Iterable<StatisticCategory> sc = scr.findAll(Sort.by(Sort.Direction.ASC, "singleName", "frequency"));
-        TreeMap<Long, StatisticCategory> catTable = new TreeMap<>();
+    public ExpenseCategoryEntity getCategory(String productName) {
+        Iterable<StatisticCategoryEntity> sc = scr.findAll(Sort.by(Sort.Direction.ASC, "singleName", "frequency"));
+        TreeMap<Long, StatisticCategoryEntity> catTable = new TreeMap<>();
         List<String> prepList = ExpenseProductService.prepareName(productName, false);
         sc.forEach(e -> {
             if (prepList.contains(e.getSingleName())) catTable.put(e.getFrequency(), e);
@@ -67,7 +67,7 @@ public class ExpenseCategoryService {
         return catTable.isEmpty() ? null : catTable.firstEntry().getValue().getExpenseCategory();
     }
 
-    public ExpenseCategory save(String name) {
-        return ecr.save(new ExpenseCategory(name));
+    public ExpenseCategoryEntity save(String name) {
+        return ecr.save(new ExpenseCategoryEntity(name));
     }
 }

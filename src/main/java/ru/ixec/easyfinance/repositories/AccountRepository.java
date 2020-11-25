@@ -1,11 +1,11 @@
 package ru.ixec.easyfinance.repositories;
 
 import org.springframework.data.repository.CrudRepository;
-import ru.ixec.easyfinance.entity.Account;
+import ru.ixec.easyfinance.entity.AccountEntity;
 
 import java.util.Collection;
 
-public interface AccountRepository extends CrudRepository<Account, Long> {
+public interface AccountRepository extends CrudRepository<AccountEntity, Long> {
 
-    Collection<Account> findByClientChatId(Long chatId);
+    Collection<AccountEntity> findByClientChatId(Long chatId);
 }

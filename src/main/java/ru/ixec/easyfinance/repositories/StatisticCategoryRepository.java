@@ -2,9 +2,9 @@ package ru.ixec.easyfinance.repositories;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
-import ru.ixec.easyfinance.entity.StatisticCategory;
+import ru.ixec.easyfinance.entity.StatisticCategoryEntity;
 
-public interface StatisticCategoryRepository extends CrudRepository<StatisticCategory, Long> {
+public interface StatisticCategoryRepository extends CrudRepository<StatisticCategoryEntity, Long> {
 
-    Iterable<StatisticCategory> findAll(Sort by);
+    Iterable<StatisticCategoryEntity> findAll(Sort by);
 }

@@ -1,10 +1,9 @@
 package ru.ixec.easyfinance.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import ru.ixec.easyfinance.entity.ExpenseCategory;
-import ru.ixec.easyfinance.entity.ExpenseProduct;
+import ru.ixec.easyfinance.entity.ExpenseCategoryEntity;
+import ru.ixec.easyfinance.entity.ExpenseProductEntity;
 import ru.ixec.easyfinance.repositories.ExpenseProductRepository;
 
 import java.util.ArrayList;
@@ -18,17 +17,17 @@ public class ExpenseProductService {
     private final ExpenseProductRepository epr;
     private final ExpenseCategoryService ecs;
 
-    public ExpenseProduct getProduct(String productName) {
-        Optional<ExpenseProduct> epo = epr.findByName(productName);
+    public ExpenseProductEntity getProduct(String productName) {
+        Optional<ExpenseProductEntity> epo = epr.findByName(productName);
         if (epo.isPresent())
             return epo.get();
         else {
-            ExpenseCategory ec = ecs.getCategory(productName);
-            return save(new ExpenseProduct(productName, ec));
+            ExpenseCategoryEntity ec = ecs.getCategory(productName);
+            return save(new ExpenseProductEntity(productName, ec));
         }
     }
 
-    public ExpenseProduct save(ExpenseProduct ep) {
+    public ExpenseProductEntity save(ExpenseProductEntity ep) {
         return epr.save(ep);
     }
 

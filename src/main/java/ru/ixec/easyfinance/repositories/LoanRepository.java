@@ -2,8 +2,8 @@ package ru.ixec.easyfinance.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import ru.ixec.easyfinance.entity.Loan;
+import ru.ixec.easyfinance.entity.LoanEntity;
 
 @Repository
-public interface LoanRepository extends CrudRepository<Loan, Long> {
+public interface LoanRepository extends CrudRepository<LoanEntity, Long> {
 }

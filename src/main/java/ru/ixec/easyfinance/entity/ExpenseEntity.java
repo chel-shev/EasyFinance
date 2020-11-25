@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import static java.util.Objects.isNull;
 
 @Data
-@Entity
-public class Expense {
+@Entity(name = "expense")
+public class ExpenseEntity {
 
     @Id
     @GeneratedValue
@@ -23,15 +23,15 @@ public class Expense {
     private boolean confirmed;
 
     @ManyToOne
-    private ExpenseProduct expenseProduct;
+    private ExpenseProductEntity expenseProduct;
 
     @ManyToOne
-    private Account account;
+    private AccountEntity account;
 
-    public Expense() {
+    public ExpenseEntity() {
     }
 
-    public Expense(LocalDateTime date, Long price, Long sum, Double quantity, ExpenseProduct expenseProduct) {
+    public ExpenseEntity(LocalDateTime date, Long price, Long sum, Double quantity, ExpenseProductEntity expenseProduct) {
         this.date = date;
         this.price = price;
         this.sum = sum;
@@ -47,7 +47,7 @@ public class Expense {
         return isNull(expenseProduct) ? "" : expenseProduct.getCategoryName();
     }
 
-    public ExpenseCategory getProductCategory(){
+    public ExpenseCategoryEntity getProductCategory(){
         return isNull(expenseProduct) ? null : expenseProduct.getExpenseCategory();
     }
 }

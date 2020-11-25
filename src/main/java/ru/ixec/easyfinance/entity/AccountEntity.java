@@ -7,8 +7,8 @@ import javax.persistence.*;
 import java.util.List;
 
 @Data
-@Entity
-public class Account {
+@Entity(name = "account")
+public class AccountEntity {
 
     @Id
     @GeneratedValue
@@ -19,14 +19,14 @@ public class Account {
     private AccountType accountType;
 
     @ManyToOne
-    private Client client;
+    private ClientEntity client;
 
     @OneToMany(mappedBy = "account")
-    private List<Expense> expenseList;
+    private List<ExpenseEntity> expenseList;
 
     @OneToMany(mappedBy = "account")
-    private List<Income> incomeList;
+    private List<IncomeEntity> incomeList;
 
     @OneToMany(mappedBy = "account")
-    private List<Loan> loanList;
+    private List<LoanEntity> loanList;
 }

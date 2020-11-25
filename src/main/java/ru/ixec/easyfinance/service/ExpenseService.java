@@ -2,9 +2,9 @@ package ru.ixec.easyfinance.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.ixec.easyfinance.entity.Account;
-import ru.ixec.easyfinance.entity.Expense;
-import ru.ixec.easyfinance.entity.ExpenseProduct;
+import ru.ixec.easyfinance.entity.AccountEntity;
+import ru.ixec.easyfinance.entity.ExpenseEntity;
+import ru.ixec.easyfinance.entity.ExpenseProductEntity;
 import ru.ixec.easyfinance.repositories.*;
 
 import java.util.List;
@@ -16,32 +16,32 @@ public class ExpenseService {
     private final ExpenseProductService eps;
     private final ExpenseRepository er;
 
-    public Iterable<Expense> get() {
+    public Iterable<ExpenseEntity> get() {
         return er.findAllByConfirmed(false);
     }
 
-    public Expense getById(Long id) {
-        return er.findById(id).orElse(new Expense());
+    public ExpenseEntity getById(Long id) {
+        return er.findById(id).orElse(new ExpenseEntity());
     }
 
-    public void save(Expense expense, Account account) {
-        ExpenseProduct ep = eps.getProduct(expense.getProductName());
+    public void save(ExpenseEntity expense, AccountEntity account) {
+        ExpenseProductEntity ep = eps.getProduct(expense.getProductName());
         expense.setExpenseProduct(ep);
         expense.setAccount(account);
         er.save(expense);
     }
 
-    public Expense save(Expense expense) {
-        ExpenseProduct ep = eps.getProduct(expense.getProductName());
+    public ExpenseEntity save(ExpenseEntity expense) {
+        ExpenseProductEntity ep = eps.getProduct(expense.getProductName());
         expense.setExpenseProduct(ep);
         return er.save(expense);
     }
 
-    public void saveAll(List<Expense> expenseList, Account account) {
+    public void saveAll(List<ExpenseEntity> expenseList, AccountEntity account) {
         expenseList.forEach(expense -> save(expense, account));
     }
 
-    public void updateConfirmed(List<Expense> expenseList) {
+    public void updateConfirmed(List<ExpenseEntity> expenseList) {
         expenseList.forEach(expense -> {
             if (expense.isConfirmed()) save(expense);
         });

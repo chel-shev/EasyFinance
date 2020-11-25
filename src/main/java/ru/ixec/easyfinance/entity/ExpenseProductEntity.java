@@ -7,8 +7,8 @@ import javax.persistence.*;
 import static java.util.Objects.isNull;
 
 @Data
-@Entity
-public class ExpenseProduct {
+@Entity(name = "expense_product")
+public class ExpenseProductEntity {
 
     @Id
     @GeneratedValue
@@ -16,12 +16,12 @@ public class ExpenseProduct {
     private String name;
 
     @ManyToOne
-    private ExpenseCategory expenseCategory;
+    private ExpenseCategoryEntity expenseCategory;
 
-    public ExpenseProduct() {
+    public ExpenseProductEntity() {
     }
 
-    public ExpenseProduct(String name, ExpenseCategory expenseCategory) {
+    public ExpenseProductEntity(String name, ExpenseCategoryEntity expenseCategory) {
         this.name = name;
         this.expenseCategory = expenseCategory;
     }
