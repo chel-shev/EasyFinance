@@ -6,7 +6,6 @@ import ru.ixec.easyfinance.bot.BotException;
 import ru.ixec.easyfinance.entity.AccountEntity;
 import ru.ixec.easyfinance.entity.ClientEntity;
 import ru.ixec.easyfinance.entity.InquiryEntity;
-import ru.ixec.easyfinance.service.ExpenseService;
 import ru.ixec.easyfinance.service.InquiryService;
 import ru.ixec.easyfinance.type.InquiryType;
 import ru.ixec.easyfinance.utils.ApplicationContextUtils;
@@ -25,26 +24,23 @@ public abstract class Inquiry {
     private ClientEntity clientEntity;
     private AccountEntity accountEntity;
 
-    final ExpenseService es;
-    final InquiryService is;
+    private final InquiryService inqS;
 
     Inquiry(InquiryType type, AccountEntity accountEntity) throws BotException {
         ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
-        es = (ExpenseService) appCtx.getBean("expenseService");
-        is = (InquiryService) appCtx.getBean("inquiryService");
+        inqS = (InquiryService) appCtx.getBean("inquiryService");
         this.setAccountEntity(accountEntity);
         this.setClientEntity(accountEntity.getClient());
         this.setDate(LocalDateTime.now());
         this.setCompleted(false);
         this.setType(type);
-        InquiryEntity inquiryEntity = is.save(getEntity());
+        InquiryEntity inquiryEntity = getInqS().save(getEntity());
         this.setId(inquiryEntity.getInquiryId());
     }
 
     Inquiry(InquiryEntity entity, AccountEntity accountEntity) throws BotException {
         ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
-        es = (ExpenseService) appCtx.getBean("expenseService");
-        is = (InquiryService) appCtx.getBean("inquiryService");
+        inqS = (InquiryService) appCtx.getBean("inquiryService");
         this.setAccountEntity(accountEntity);
         this.setClientEntity(accountEntity.getClient());
         this.setCompleted(entity.getCompleted());
@@ -61,9 +57,37 @@ public abstract class Inquiry {
         return type.getInfo();
     }
 
-    public abstract InquiryResponse process(String message);
+    public abstract InquiryResponse process(String textMessage);
 
-    public abstract void complete();
+    public void complete() {
+        this.setCompleted(true);
+        getInqS().save(this.getEntity());
+    }
 
-    public abstract InquiryResponse cancel();
+    public InquiryResponse cancel() {
+        this.setCompleted(true);
+        getInqS().save(this.getEntity());
+        return new InquiryResponse("Добавление отменено!", false);
+    }
+
+    public String getNameFromParam(String textMessage) {
+        return textMessage.split(":")[0];
+    }
+
+    public long getValueFromParam(String textMessage) {
+        return (long) Double.parseDouble(textMessage.split(":")[1]
+                .replace(",", ".")
+                .replace("–", "")
+                .replace("-", "")
+                .replace(" ", "")
+                .trim()) * 100;
+    }
+
+    public boolean getDirectionFromParam(String textMessage) {
+        return !(textMessage.split(":")[1].contains("-") || textMessage.split(":")[1].contains("–"));
+    }
+
+    public boolean isNameValueParam(String textMessage) {
+        return textMessage.split(":").length == 2;
+    }
 }

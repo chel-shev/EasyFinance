@@ -8,25 +8,29 @@ import ru.ixec.easyfinance.type.InquiryType;
 public class InquiryFactory {
 
     public static Inquiry createInquiry(String typeText, AccountEntity accountEntity) {
-        InquiryType type = InquiryType.get(typeText);
-        Inquiry inquiry;
-        switch (type) {
-            case EXPENSE:
-                inquiry = new ExpenseInquiry(accountEntity);
-                break;
-            case INCOME:
-                inquiry = new IncomeInquiry(accountEntity);
-                break;
-            case LOAN:
-                inquiry = new LoanInquiry(accountEntity);
-                break;
-            case TRANSFER:
-                inquiry = new TransferInquiry(accountEntity);
-                break;
-            default:
-                throw new BotException("Неверный тип операции!", true);
+        try {
+            InquiryType type = InquiryType.get(typeText);
+            Inquiry inquiry;
+            switch (type) {
+                case EXPENSE:
+                    inquiry = new ExpenseInquiry(accountEntity);
+                    break;
+                case INCOME:
+                    inquiry = new IncomeInquiry(accountEntity);
+                    break;
+                case LOAN:
+                    inquiry = new LoanInquiry(accountEntity);
+                    break;
+                case TRANSFER:
+                    inquiry = new TransferInquiry(accountEntity);
+                    break;
+                default:
+                    throw new BotException("Неверный тип операции!", true);
+            }
+            return inquiry;
+        } catch (NullPointerException e) {
+            throw new BotException("Неверный тип операции!", true);
         }
-        return inquiry;
     }
 
     public static Inquiry createInquiry(InquiryEntity entity, AccountEntity accountEntity) {

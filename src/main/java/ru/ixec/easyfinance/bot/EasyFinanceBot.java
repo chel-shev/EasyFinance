@@ -86,13 +86,13 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
                     lastInquiryEntity = InquiryFactory.createInquiry(message.getText(), accountEntity);
                     sendMessage(message, lastInquiryEntity.getTextInfo(), true);
                 } else {
-                    String text;
+                    String textMessage;
                     if (message.hasPhoto() && lastInquiryEntity instanceof ExpenseInquiry) {
-                        text = getQRDataFromPhoto(message);
+                        textMessage = getQRDataFromPhoto(message);
                     } else {
-                        text = message.getText();
+                        textMessage = message.getText();
                     }
-                    InquiryResponse response = lastInquiryEntity.process(text);
+                    InquiryResponse response = lastInquiryEntity.process(textMessage);
                     sendMessage(message, response.getMessage(), response.isCancelMode());
                 }
             } catch (NullPointerException e) {

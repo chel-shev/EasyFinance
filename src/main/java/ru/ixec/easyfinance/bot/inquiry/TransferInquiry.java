@@ -15,7 +15,7 @@ public class TransferInquiry extends Inquiry {
     }
 
     @Override
-    public InquiryResponse process(String message) {
+    public InquiryResponse process(String textMessage) {
         return new InquiryResponse();
     }
 
