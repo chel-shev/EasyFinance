@@ -75,10 +75,10 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
                 Inquiry lastInquiryEntity = inqS.getLast(client);
                 if (isNull(lastInquiryEntity) || lastInquiryEntity.isCompleted()) {
                     InquiryFactory.initInquiry(message.getText(), client);
-                    sendMessage(client, "Выберите счет, с которым будет производится операция:", KeyboardType.ACCOUNTS);
+                    sendMessageFromClient(client, KeyboardType.ACCOUNTS, "Выберите счет, с которым будет производится операция:");
                 } else if (!lastInquiryEntity.isReadyForProcess()) {
                     InquiryResponse response = lastInquiryEntity.setAccountFromText(message.getText());
-                    sendMessage(client, response.getMessage(), response.getKeyboardType());
+                    sendMessageFromClient(client, response.getKeyboardType(), response.getMessage());
                 } else {
                     if (message.hasPhoto() && lastInquiryEntity instanceof ExpenseInquiry) {
                         lastInquiryEntity.setText(getQRDataFromPhoto(message));
@@ -86,11 +86,11 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
                         lastInquiryEntity.setText(message.getText());
                     }
                     InquiryResponse response = lastInquiryEntity.process();
-                    sendMessage(client, response.getMessage(), response.getKeyboardType());
+                    sendMessageFromClient(client, response.getKeyboardType(), response.getMessage());
                 }
             } catch (BotException e) {
                 log.debug(e.getMessage());
-                sendMessage(message, e.getMessage(), e.getInquiryResponse().getKeyboardType());
+                sendMessageFromMessage(message, e.getInquiryResponse().getKeyboardType(), e.getMessage());
             }
         }
     }
@@ -131,20 +131,18 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
                 .orElseThrow(() -> new BotException("Ошибка получения фотографии!", KeyboardType.CANCEL));
     }
 
-    public void sendMessage(ClientEntity client, String text, KeyboardType keyboardType) {
-        try {
-            SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(client.getChatId())).text(text).build();
-            sendMessage.setReplyMarkup(KeyboardFactory.createKeyboard(keyboardType, client));
-            sendMessage.enableMarkdown(true);
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+    public void sendMessageFromClient(ClientEntity client, KeyboardType keyboardType, String text) {
+        SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(client.getChatId())).text(text).build();
+        sendMessage(sendMessage, keyboardType);
     }
 
-    public void sendMessage(Message message, String text, KeyboardType keyboardType) {
+    private void sendMessageFromMessage(Message message, KeyboardType keyboardType, String text) {
+        SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(message.getChatId())).text(text).build();
+        sendMessage(sendMessage, keyboardType);
+    }
+
+    public void sendMessage(SendMessage sendMessage, KeyboardType keyboardType) {
         try {
-            SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(message.getChatId())).text(text).build();
             sendMessage.setReplyMarkup(KeyboardFactory.createKeyboard(keyboardType, null));
             sendMessage.enableMarkdown(true);
             execute(sendMessage);
