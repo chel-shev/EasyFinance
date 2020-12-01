@@ -51,7 +51,6 @@ public class TransferInquiry extends Inquiry {
         }
     }
 
-    @Transactional
     public InquiryResponse saveTransfer() {
         long value = getValueFromParam(0);
         setAmount(value);

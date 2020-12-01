@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.ixec.easyfinance.entity.AccountEntity;
 import ru.ixec.easyfinance.entity.ClientEntity;
 import ru.ixec.easyfinance.exception.BotException;
 import ru.ixec.easyfinance.service.ClientService;
@@ -61,7 +62,7 @@ public class KeyboardFactory {
         ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
         ClientService cliS = (ClientService) appCtx.getBean("clientService");
         List<KeyboardRow> rowList = new ArrayList<>();
-        List<String> accountList = cliS.getAccountList(client.getClientId()).stream().map(a -> a.getName() + " (" + String.format("%.2f", a.getAmount() / 100d) + ")").collect(Collectors.toList());
+        List<String> accountList = cliS.getAccountList(client.getClientId()).stream().map(AccountEntity::getInfoString).collect(Collectors.toList());
         KeyboardRow row = new KeyboardRow();
         List<String> rowsName = new ArrayList<>();
         for (int i = 0; i < accountList.size(); i++) {

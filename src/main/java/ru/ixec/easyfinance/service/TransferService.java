@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.ixec.easyfinance.entity.TransferEntity;
 import ru.ixec.easyfinance.repositories.TransferRepository;
 
+import javax.transaction.Transactional;
+
 @Service
 @RequiredArgsConstructor
 public class TransferService {
@@ -12,6 +14,7 @@ public class TransferService {
     private final TransferRepository traR;
     private final AccountService accS;
 
+    @Transactional
     public TransferEntity save(TransferEntity transfer){
         transfer.getIn().addAmount(transfer.getAmount());
         accS.save(transfer.getIn());

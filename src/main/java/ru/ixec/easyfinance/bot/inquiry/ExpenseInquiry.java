@@ -53,8 +53,6 @@ public class ExpenseInquiry extends Inquiry {
         }
     }
 
-
-
     private InquiryResponse savePurchase() {
         String name = getNameFromParam(0);
         long value = getValueFromParam(1);
@@ -63,7 +61,7 @@ public class ExpenseInquiry extends Inquiry {
         ExpenseEntity expenseEntity = new ExpenseEntity(LocalDateTime.now(), value, expenseProductEntity);
         expS.save(expenseEntity, getAccount(), getAmount());
         complete();
-        return new InquiryResponse("Расход добавлена!", KeyboardType.INQUIRIES);
+        return new InquiryResponse("Расход добавлен!", KeyboardType.INQUIRIES);
     }
 
     private InquiryResponse saveReceipt() throws JSONException {

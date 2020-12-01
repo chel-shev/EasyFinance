@@ -133,17 +133,17 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
 
     public void sendMessageFromClient(ClientEntity client, KeyboardType keyboardType, String text) {
         SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(client.getChatId())).text(text).build();
-        sendMessage(sendMessage, keyboardType);
+        sendMessage(sendMessage, keyboardType, client);
     }
 
     private void sendMessageFromMessage(Message message, KeyboardType keyboardType, String text) {
         SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(message.getChatId())).text(text).build();
-        sendMessage(sendMessage, keyboardType);
+        sendMessage(sendMessage, keyboardType, null);
     }
 
-    public void sendMessage(SendMessage sendMessage, KeyboardType keyboardType) {
+    public void sendMessage(SendMessage sendMessage, KeyboardType keyboardType, ClientEntity client) {
         try {
-            sendMessage.setReplyMarkup(KeyboardFactory.createKeyboard(keyboardType, null));
+            sendMessage.setReplyMarkup(KeyboardFactory.createKeyboard(keyboardType, client));
             sendMessage.enableMarkdown(true);
             execute(sendMessage);
         } catch (TelegramApiException e) {

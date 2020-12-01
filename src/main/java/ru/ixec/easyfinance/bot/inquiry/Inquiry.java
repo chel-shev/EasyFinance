@@ -74,7 +74,7 @@ public abstract class Inquiry {
     public InquiryResponse setAccountFromText(String accountName) {
         if (accountName.equals("Отмена"))
             return cancel();
-        AccountEntity account = getAccount(accountName.split(" ")[0]);
+        AccountEntity account = getAccount(accountName.split(" ")[1]);
         this.setAccount(account);
         getInqS().save(getEntity());
         return new InquiryResponse(getTextInfo(), KeyboardType.CANCEL);

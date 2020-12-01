@@ -8,6 +8,8 @@ import ru.ixec.easyfinance.entity.ClientEntity;
 import ru.ixec.easyfinance.entity.InquiryEntity;
 import ru.ixec.easyfinance.repositories.InquiryRepository;
 
+import static java.util.Objects.isNull;
+
 @Service
 @RequiredArgsConstructor
 public class InquiryService {
@@ -16,6 +18,8 @@ public class InquiryService {
 
     public Inquiry getLast(ClientEntity client) {
         InquiryEntity entity = inqR.findTopByClientOrderByDateDesc(client);
+        if (isNull(entity))
+            return null;
         return InquiryFactory.createInquiry(entity, client);
     }
 
