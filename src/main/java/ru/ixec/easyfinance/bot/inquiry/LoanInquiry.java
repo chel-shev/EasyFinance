@@ -3,12 +3,13 @@ package ru.ixec.easyfinance.bot.inquiry;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.springframework.context.ApplicationContext;
-import ru.ixec.easyfinance.bot.BotException;
-import ru.ixec.easyfinance.entity.AccountEntity;
+import ru.ixec.easyfinance.entity.ClientEntity;
 import ru.ixec.easyfinance.entity.InquiryEntity;
 import ru.ixec.easyfinance.entity.LoanEntity;
+import ru.ixec.easyfinance.exception.BotException;
 import ru.ixec.easyfinance.service.LoanService;
 import ru.ixec.easyfinance.type.ActionType;
+import ru.ixec.easyfinance.type.KeyboardType;
 import ru.ixec.easyfinance.utils.ApplicationContextUtils;
 
 import java.time.LocalDateTime;
@@ -20,14 +21,14 @@ public class LoanInquiry extends Inquiry {
 
     private final LoanService loaS;
 
-    public LoanInquiry(AccountEntity accountEntity) {
-        super(ActionType.LOAN, accountEntity);
+    public LoanInquiry(ClientEntity client) {
+        super(ActionType.LOAN, client);
         ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
         loaS = (LoanService) appCtx.getBean("loanService");
     }
 
-    public LoanInquiry(InquiryEntity entity, AccountEntity accountEntity) {
-        super(entity, accountEntity);
+    public LoanInquiry(InquiryEntity entity, ClientEntity client) {
+        super(entity, client);
         ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
         loaS = (LoanService) appCtx.getBean("loanService");
     }
@@ -36,31 +37,20 @@ public class LoanInquiry extends Inquiry {
     public InquiryResponse process() {
         log.info("PROCESS LoanInquiry(inquiryId: {}, text: {}, type: {}, date: {}, completed: {})", getId(), getText(), getType(), getDate(), isCompleted());
         try {
-            if (textEquals("Отмена"))
+            if (getText().equals("Отмена"))
                 return cancel();
             else if (isDoubleParam())
                 return saveLoan();
             else
-                return new InquiryResponse("Неверный формат!", true);
+                return new InquiryResponse("Неверный формат!", KeyboardType.CANCEL);
         } catch (JSONException | NullPointerException e) {
-            throw new BotException("Ошибка добавления!", true);
+            throw new BotException("Ошибка добавления!", KeyboardType.CANCEL);
         }
-    }
-
-    private InquiryResponse saveLoan() {
-        String name = getNameFromParam( 0);
-        long value = getValueFromParam( 1);
-        boolean direction = getDirectionFromParam( 1);
-        setAmount(direction ? getAmount() : -1 * getAmount());
-        LoanEntity loanEntity = new LoanEntity(name, value, LocalDateTime.now(), null, direction, getAccountEntity());
-        loaS.save(loanEntity, getAccountEntity());
-        complete();
-        return new InquiryResponse("Займ добавлен!", false);
     }
 
     @Override
     public String getTextInfo() {
-        Collection<LoanEntity> loanByClient = loaS.getLoanByAccountId(getAccountEntity().getAccountId());
+        Collection<LoanEntity> loanByClient = loaS.getLoanByClient(getClient());
         String loanList = loanByClient.stream()
                 .collect(Collectors.groupingBy(LoanEntity::getName))
                 .values()
@@ -76,9 +66,14 @@ public class LoanInquiry extends Inquiry {
         return String.format(getType().getInfo(), loanList);
     }
 
-    @Override
-    public InquiryResponse cancel() {
+    private InquiryResponse saveLoan() {
+        String name = getNameFromParam(0);
+        long value = getValueFromParam(1);
+        boolean direction = getDirectionFromParam(1);
+        setAmount(direction ? value : -1 * value);
+        LoanEntity loanEntity = new LoanEntity(name, value, LocalDateTime.now(), null, direction, getAccount());
+        loaS.save(loanEntity, getAccount());
         complete();
-        return new InquiryResponse("Займ отменен!", false);
+        return new InquiryResponse("Займ добавлен!", KeyboardType.INQUIRIES);
     }
 }

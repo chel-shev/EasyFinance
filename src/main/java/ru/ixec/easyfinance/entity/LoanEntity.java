@@ -26,7 +26,7 @@ public class LoanEntity {
     @ManyToOne
     private AccountEntity account;
 
-    public LoanEntity(String name, Long amount, LocalDateTime dateStart, LocalDateTime dateFinish, Boolean direction, AccountEntity account) {
+    public LoanEntity(String name, long amount, LocalDateTime dateStart, LocalDateTime dateFinish, boolean direction, AccountEntity account) {
         this.name = name;
         this.amount = amount;
         this.dateStart = dateStart;
@@ -35,7 +35,7 @@ public class LoanEntity {
         this.account = account;
     }
 
-    public LoanEntity(String name, Long amount) {
+    public LoanEntity(String name, long amount) {
         this.name = name;
         this.amount = amount;
     }

@@ -26,19 +26,27 @@ public class InquiryEntity {
     private Boolean completed = false;
 
     @ManyToOne
+    private AccountEntity in;
+
+    @ManyToOne
+    private AccountEntity out;
+
+    @ManyToOne
     private ClientEntity client;
 
     public InquiryEntity() {
 
     }
 
-    public InquiryEntity(Inquiry inquiry) {
+    public InquiryEntity(Inquiry inquiry, AccountEntity in, AccountEntity out) {
         this.inquiryId = inquiry.getId();
         this.text = inquiry.getText();
         this.type = inquiry.getType();
         this.date = inquiry.getDate();
         this.amount = inquiry.getAmount();
         this.completed = inquiry.isCompleted();
-        this.client = inquiry.getClientEntity();
+        this.client = inquiry.getClient();
+        this.in = in;
+        this.out = out;
     }
 }

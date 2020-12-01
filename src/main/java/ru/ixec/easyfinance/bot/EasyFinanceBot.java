@@ -13,24 +13,26 @@ import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import ru.ixec.easyfinance.bot.factory.InquiryFactory;
+import ru.ixec.easyfinance.bot.factory.KeyboardFactory;
 import ru.ixec.easyfinance.bot.inquiry.ExpenseInquiry;
 import ru.ixec.easyfinance.bot.inquiry.Inquiry;
-import ru.ixec.easyfinance.bot.inquiry.InquiryFactory;
 import ru.ixec.easyfinance.bot.inquiry.InquiryResponse;
-import ru.ixec.easyfinance.entity.AccountEntity;
+import ru.ixec.easyfinance.entity.ClientEntity;
+import ru.ixec.easyfinance.exception.BotException;
 import ru.ixec.easyfinance.service.AccountService;
+import ru.ixec.easyfinance.service.ClientService;
 import ru.ixec.easyfinance.service.InquiryService;
+import ru.ixec.easyfinance.type.KeyboardType;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.*;
+import java.util.Comparator;
 
 import static java.util.Objects.isNull;
-import static ru.ixec.easyfinance.type.ActionType.*;
 
 @Setter
 @Getter
@@ -38,20 +40,20 @@ import static ru.ixec.easyfinance.type.ActionType.*;
 @Component
 public class EasyFinanceBot extends TelegramLongPollingBot {
 
-    private ReplyKeyboardMarkup replyKeyboardMarkup;
-    private ReplyKeyboardMarkup cancelKeyboardMarkup;
-    private final AccountService as;
-    private final InquiryService is;
+    private final AccountService accS;
+    private final ClientService cliS;
+    private final InquiryService inqS;
 
     @Value("${easy.finance.bot.api.username}")
     private String username;
     @Value("${easy.finance.bot.api.token}")
     private String token;
 
-    public EasyFinanceBot(AccountService as, InquiryService is) {
+    public EasyFinanceBot(AccountService accS, ClientService cliS, InquiryService inqS) {
         super();
-        this.as = as;
-        this.is = is;
+        this.accS = accS;
+        this.cliS = cliS;
+        this.inqS = inqS;
     }
 
     @PostConstruct
@@ -62,16 +64,6 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(false);
-        replyKeyboardMarkup.setKeyboard(getDefaultKeyboard());
-        cancelKeyboardMarkup = new ReplyKeyboardMarkup();
-        cancelKeyboardMarkup.setSelective(true);
-        cancelKeyboardMarkup.setResizeKeyboard(true);
-        cancelKeyboardMarkup.setOneTimeKeyboard(false);
-        cancelKeyboardMarkup.setKeyboard(getCancelKeyboard());
     }
 
     @Override
@@ -79,12 +71,14 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
         if (!isNull(update.getMessage())) {
             Message message = update.getMessage();
             try {
-                AccountEntity accountEntity = as.getAccountByChatId(message.getChatId());
-                Objects.requireNonNull(accountEntity);
-                Inquiry lastInquiryEntity = is.getLast(accountEntity);
+                ClientEntity client = cliS.getClientByChatId(message.getChatId());
+                Inquiry lastInquiryEntity = inqS.getLast(client);
                 if (isNull(lastInquiryEntity) || lastInquiryEntity.isCompleted()) {
-                    lastInquiryEntity = InquiryFactory.createInquiry(message.getText(), accountEntity);
-                    sendMessage(message, lastInquiryEntity.getTextInfo(), true);
+                    InquiryFactory.initInquiry(message.getText(), client);
+                    sendMessage(client, "Выберите счет, с которым будет производится операция:", KeyboardType.ACCOUNTS);
+                } else if (!lastInquiryEntity.isReadyForProcess()) {
+                    InquiryResponse response = lastInquiryEntity.setAccountFromText(message.getText());
+                    sendMessage(client, response.getMessage(), response.getKeyboardType());
                 } else {
                     if (message.hasPhoto() && lastInquiryEntity instanceof ExpenseInquiry) {
                         lastInquiryEntity.setText(getQRDataFromPhoto(message));
@@ -92,94 +86,71 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
                         lastInquiryEntity.setText(message.getText());
                     }
                     InquiryResponse response = lastInquiryEntity.process();
-                    sendMessage(message, response.getMessage(), response.isCancelMode());
+                    sendMessage(client, response.getMessage(), response.getKeyboardType());
                 }
-            } catch (NullPointerException e) {
-                log.debug(e.getMessage());
-                sendMessage(message, "Пользователь не найден!", false);
             } catch (BotException e) {
                 log.debug(e.getMessage());
-                sendMessage(message, e.getMessage(), e.getInquiryResponse().isCancelMode());
-            } catch (IOException e) {
-                log.debug(e.getMessage());
-                sendMessage(message, "Ошибка добавления!", false);
+                sendMessage(message, e.getMessage(), e.getInquiryResponse().getKeyboardType());
             }
         }
     }
 
-    public String getQRDataFromPhoto(Message message) throws IOException {
+    public String getQRDataFromPhoto(Message message) {
         try {
-            PhotoSize photo = getPhoto(message);
+            @NotNull PhotoSize photo = getPhoto(message);
             String path = getFilePath(photo);
-            java.io.File filePhoto = downloadPhotoByFilePath(path);
-            String qr = DecoderPhotoQR.decode(filePhoto);
-            Objects.requireNonNull(qr);
+            java.io.File filePhoto = downloadFile(path);
+            @NotNull String qr = DecoderPhotoQR.decode(filePhoto);
             return qr;
-        } catch (NullPointerException e) {
-            throw new BotException("QR-код прочитать неудалось!", true);
+        } catch (TelegramApiException e) {
+            throw new BotException("Ошибка получения фотографии!", KeyboardType.CANCEL);
+        } catch (NullPointerException | IOException e) {
+            throw new BotException("QR-код прочитать не удалось!", KeyboardType.CANCEL);
         }
     }
 
     public String getFilePath(PhotoSize photo) {
-        Objects.requireNonNull(photo);
-        if (!isNull(photo.getFilePath()) && !photo.getFilePath().isEmpty()) {
-            return photo.getFilePath();
-        } else {
+        if (isNull(photo.getFilePath()) || photo.getFilePath().isEmpty()) {
             GetFile getFileMethod = new GetFile();
             getFileMethod.setFileId(photo.getFileId());
             try {
                 File file = execute(getFileMethod);
                 return file.getFilePath();
             } catch (TelegramApiException e) {
-                e.printStackTrace();
-                return null;
+                throw new BotException("Не удалось получить файл!", KeyboardType.CANCEL);
             }
+        } else {
+            return photo.getFilePath();
         }
     }
 
     public PhotoSize getPhoto(Message message) {
-        if (message.hasPhoto()) {
-            List<PhotoSize> photos = message.getPhoto();
-            return photos.stream().max(Comparator.comparing(PhotoSize::getFileSize)).orElse(null);
-        }
-        return null;
+        return message.getPhoto()
+                .stream()
+                .max(Comparator.comparing(PhotoSize::getFileSize))
+                .orElseThrow(() -> new BotException("Ошибка получения фотографии!", KeyboardType.CANCEL));
     }
 
-    public java.io.File downloadPhotoByFilePath(String filePath) {
+    public void sendMessage(ClientEntity client, String text, KeyboardType keyboardType) {
         try {
-            return downloadFile(filePath);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void sendMessage(Message message, String text, Boolean canceledMode) {
-        SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(message.getChatId())).text(text).build();
-        if (canceledMode)
-            sendMessage.setReplyMarkup(cancelKeyboardMarkup);
-        else
-            sendMessage.setReplyMarkup(replyKeyboardMarkup);
-        sendMessage.enableMarkdown(true);
-        try {
+            SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(client.getChatId())).text(text).build();
+            sendMessage.setReplyMarkup(KeyboardFactory.createKeyboard(keyboardType, client));
+            sendMessage.enableMarkdown(true);
             execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
 
-    private List<KeyboardRow> getDefaultKeyboard() {
-        KeyboardRow keyboardFirstRow = new KeyboardRow();
-        KeyboardRow keyboardSecondRow = new KeyboardRow();
-        keyboardFirstRow.addAll(Arrays.asList(EXPENSE.label, INCOME.label));
-        keyboardSecondRow.addAll(Arrays.asList(LOAN.label, TRANSFER.label));
-        return Arrays.asList(keyboardFirstRow, keyboardSecondRow);
-    }
-
-    private List<KeyboardRow> getCancelKeyboard() {
-        KeyboardRow keyboardFirstRow = new KeyboardRow();
-        keyboardFirstRow.addAll(Collections.singletonList("Отмена"));
-        return Collections.singletonList(keyboardFirstRow);
+    public void sendMessage(Message message, String text, KeyboardType keyboardType) {
+        try {
+            SendMessage sendMessage = SendMessage.builder().chatId(String.valueOf(message.getChatId())).text(text).build();
+            sendMessage.setReplyMarkup(KeyboardFactory.createKeyboard(keyboardType, null));
+            sendMessage.enableMarkdown(true);
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -28,7 +28,7 @@ public class TransferEntity {
 
     }
 
-    public TransferEntity(AccountEntity in, AccountEntity out, Long amount, LocalDateTime date) {
+    public TransferEntity(AccountEntity in, AccountEntity out, long amount, LocalDateTime date) {
         this.in = in;
         this.out = out;
         this.amount = amount;

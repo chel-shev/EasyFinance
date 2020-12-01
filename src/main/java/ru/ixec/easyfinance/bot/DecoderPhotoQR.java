@@ -1,9 +1,12 @@
 package ru.ixec.easyfinance.bot;
 
+import com.google.common.base.Strings;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import lombok.extern.slf4j.Slf4j;
+import ru.ixec.easyfinance.exception.BotException;
+import ru.ixec.easyfinance.type.KeyboardType;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -24,10 +27,11 @@ public class DecoderPhotoQR {
                 put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
             }};
             Result result = new MultiFormatReader().decode(bitmap, tmpHintsMap);
+            if (Strings.isNullOrEmpty(result.getText()))
+                return null;
             return result.getText();
         } catch (NotFoundException e) {
-            log.debug("There is no QR code in the image");
-            return null;
+            throw new BotException("Ошибка получения фотографии!", KeyboardType.CANCEL);
         }
     }
 }

@@ -3,85 +3,87 @@ package ru.ixec.easyfinance.bot.inquiry;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.springframework.context.ApplicationContext;
-import ru.ixec.easyfinance.bot.BotException;
 import ru.ixec.easyfinance.entity.AccountEntity;
+import ru.ixec.easyfinance.entity.ClientEntity;
 import ru.ixec.easyfinance.entity.InquiryEntity;
 import ru.ixec.easyfinance.entity.TransferEntity;
-import ru.ixec.easyfinance.service.AccountService;
-import ru.ixec.easyfinance.service.ClientService;
+import ru.ixec.easyfinance.exception.BotException;
 import ru.ixec.easyfinance.service.TransferService;
 import ru.ixec.easyfinance.type.ActionType;
+import ru.ixec.easyfinance.type.KeyboardType;
 import ru.ixec.easyfinance.utils.ApplicationContextUtils;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 @Slf4j
 public class TransferInquiry extends Inquiry {
 
     private final TransferService traS;
-    private final ClientService cliS;
-    private final AccountService accS;
+    private AccountEntity accountOut;
 
-    public TransferInquiry(AccountEntity accountEntity) {
-        super(ActionType.TRANSFER, accountEntity);
+    public TransferInquiry(ClientEntity client) {
+        super(ActionType.TRANSFER, client);
         ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
         traS = (TransferService) appCtx.getBean("transferService");
-        cliS = (ClientService) appCtx.getBean("clientService");
-        accS = (AccountService) appCtx.getBean("accountService");
+
     }
 
-    public TransferInquiry(InquiryEntity entity, AccountEntity accountEntity) {
-        super(entity, accountEntity);
+    public TransferInquiry(InquiryEntity entity, ClientEntity client) {
+        super(entity, client);
         ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
         traS = (TransferService) appCtx.getBean("transferService");
-        cliS = (ClientService) appCtx.getBean("clientService");
-        accS = (AccountService) appCtx.getBean("accountService");
+        if (!isNull(entity.getOut()))
+            this.accountOut = entity.getOut();
     }
 
     @Override
     public InquiryResponse process() {
         log.info("PROCESS TransferInquiry(inquiryId: {}, text: {}, type: {}, date: {}, completed: {})", getId(), getText(), getType(), getDate(), isCompleted());
         try {
-            if (textEquals("Отмена"))
+            if (getText().equals("Отмена"))
                 return cancel();
-            else if (isTripleParam())
-                return saveTransfer();
-            return new InquiryResponse("Неверный формат!", true);
+            return saveTransfer();
         } catch (JSONException | NullPointerException e) {
-            throw new BotException("Ошибка добавления!", true);
+            throw new BotException("Ошибка добавления!", KeyboardType.CANCEL);
         }
     }
 
     @Transactional
     public InquiryResponse saveTransfer() {
-        long value = getValueFromParam(1);
+        long value = getValueFromParam(0);
         setAmount(value);
-        AccountEntity accountIn = getAccount(getNameFromParam(2));
-        AccountEntity accountOut = getAccount(getNameFromParam(0));
-        TransferEntity transferEntity = new TransferEntity(accountIn, accountOut, value, LocalDateTime.now());
+        TransferEntity transferEntity = new TransferEntity(accountOut, getAccount(), value, LocalDateTime.now());
         traS.save(transferEntity);
         complete();
-        return new InquiryResponse("Перевод добавлен!", false);
-    }
-
-    private AccountEntity getAccount(String nameAccount) {
-        return cliS.getAllAccount(getClientEntity().getClientId()).stream()
-                .filter(e -> e.getName().equals(nameAccount))
-                .findFirst()
-                .orElseThrow(() -> new BotException("'" + nameAccount + "' не найден!", true));
+        return new InquiryResponse("Перевод добавлен!", KeyboardType.INQUIRIES);
     }
 
     @Override
-    public String getTextInfo() {
-        String accountList = cliS.getAllAccount(getClientEntity().getClientId()).stream().map(a -> "` " + a.getName() + ": " + String.format("%.2f", a.getAmount() / 100d) + " " + (a.isMain() ? "⭐" : "") + "`\r\n").collect(Collectors.joining());
-        return String.format(getType().info, accountList);
+    public InquiryEntity getEntity() {
+        return new InquiryEntity(this, getAccount(), accountOut);
     }
 
     @Override
-    public InquiryResponse cancel() {
-        complete();
-        return new InquiryResponse("Перевод отменен!", false);
+    public InquiryResponse setAccountFromText(String accountName) {
+        if (accountName.equals("Отмена"))
+            return cancel();
+        AccountEntity account = getAccount(accountName.split(" ")[0]);
+        if (isNull(this.getAccount())) {
+            this.setAccount(account);
+            getInqS().save(getEntity());
+            return new InquiryResponse("Выберите счет, на который хотите совершить перевод:", KeyboardType.ACCOUNTS);
+        } else {
+            this.accountOut = account;
+            getInqS().save(getEntity());
+            return new InquiryResponse(getTextInfo(), KeyboardType.CANCEL);
+        }
+    }
+
+    @Override
+    public boolean isReadyForProcess() {
+        return !(isNull(getAccount()) || isNull(accountOut));
     }
 }

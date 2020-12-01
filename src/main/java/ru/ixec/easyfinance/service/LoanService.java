@@ -3,6 +3,7 @@ package ru.ixec.easyfinance.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.ixec.easyfinance.entity.AccountEntity;
+import ru.ixec.easyfinance.entity.ClientEntity;
 import ru.ixec.easyfinance.entity.LoanEntity;
 import ru.ixec.easyfinance.repositories.LoanRepository;
 
@@ -15,8 +16,8 @@ public class LoanService {
     private final LoanRepository loaR;
     private final AccountService accS;
 
-    public Collection<LoanEntity> getLoanByAccountId(Long accountId) {
-        return loaR.findAllByAccount_AccountId(accountId);
+    public Collection<LoanEntity> getLoanByClient(ClientEntity client) {
+        return loaR.findAllByAccountClient(client);
     }
 
     public void save(LoanEntity loan, AccountEntity account) {

@@ -36,6 +36,12 @@ public class AccountEntity {
     @OneToMany(mappedBy = "out")
     private List<TransferEntity> outTransferList;
 
+    @OneToMany(mappedBy = "in")
+    private List<InquiryEntity> accountInList;
+
+    @OneToMany(mappedBy = "out")
+    private List<InquiryEntity> accountOutList;
+
     @OneToMany(mappedBy = "account")
     private List<ClientHistoryEntity> clientHistoryList;
 

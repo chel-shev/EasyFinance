@@ -2,8 +2,10 @@ package ru.ixec.easyfinance.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.ixec.easyfinance.exception.BotException;
 import ru.ixec.easyfinance.entity.AccountEntity;
 import ru.ixec.easyfinance.repositories.AccountRepository;
+import ru.ixec.easyfinance.type.KeyboardType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +21,7 @@ public class AccountService {
                 .stream()
                 .filter(AccountEntity::isMain)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() ->  new BotException("Пользователь не найден!", KeyboardType.CANCEL));
     }
 
     public Collection<AccountEntity> getAccountListByChatId(Long chatId) {

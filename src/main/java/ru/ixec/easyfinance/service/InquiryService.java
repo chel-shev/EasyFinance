@@ -2,9 +2,9 @@ package ru.ixec.easyfinance.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.ixec.easyfinance.bot.factory.InquiryFactory;
 import ru.ixec.easyfinance.bot.inquiry.Inquiry;
-import ru.ixec.easyfinance.bot.inquiry.InquiryFactory;
-import ru.ixec.easyfinance.entity.AccountEntity;
+import ru.ixec.easyfinance.entity.ClientEntity;
 import ru.ixec.easyfinance.entity.InquiryEntity;
 import ru.ixec.easyfinance.repositories.InquiryRepository;
 
@@ -12,14 +12,18 @@ import ru.ixec.easyfinance.repositories.InquiryRepository;
 @RequiredArgsConstructor
 public class InquiryService {
 
-    private final InquiryRepository ir;
+    private final InquiryRepository inqR;
 
-    public Inquiry getLast(AccountEntity account) {
-        InquiryEntity entity = ir.findTopByClientOrderByDateDesc(account.getClient());
-        return InquiryFactory.createInquiry(entity, account);
+    public Inquiry getLast(ClientEntity client) {
+        InquiryEntity entity = inqR.findTopByClientOrderByDateDesc(client);
+        return InquiryFactory.createInquiry(entity, client);
     }
 
     public InquiryEntity save(InquiryEntity inquiry) {
-        return ir.save(inquiry);
+        return inqR.save(inquiry);
+    }
+
+    public void delete(InquiryEntity entity) {
+        inqR.delete(entity);
     }
 }

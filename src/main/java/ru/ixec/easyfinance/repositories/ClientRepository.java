@@ -12,4 +12,6 @@ public interface ClientRepository extends CrudRepository<ClientEntity, Long> {
     Optional<ClientEntity> findByUsername(String username);
 
     ClientEntity findByClientId(Long clientId);
+
+    Optional<ClientEntity> findByChatId(Long chatId);
 }
