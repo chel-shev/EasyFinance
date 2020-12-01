@@ -3,13 +3,13 @@ package ru.ixec.easyfinance.bot.inquiry;
 import ru.ixec.easyfinance.bot.BotException;
 import ru.ixec.easyfinance.entity.AccountEntity;
 import ru.ixec.easyfinance.entity.InquiryEntity;
-import ru.ixec.easyfinance.type.InquiryType;
+import ru.ixec.easyfinance.type.ActionType;
 
 public class InquiryFactory {
 
     public static Inquiry createInquiry(String typeText, AccountEntity accountEntity) {
         try {
-            InquiryType type = InquiryType.get(typeText);
+            ActionType type = ActionType.get(typeText);
             Inquiry inquiry;
             switch (type) {
                 case EXPENSE:
@@ -25,11 +25,11 @@ public class InquiryFactory {
                     inquiry = new TransferInquiry(accountEntity);
                     break;
                 default:
-                    throw new BotException("Неверный тип операции!", true);
+                    throw new BotException("Неверный тип операции!", false);
             }
             return inquiry;
         } catch (NullPointerException e) {
-            throw new BotException("Неверный тип операции!", true);
+            throw new BotException("Неверный тип операции!", false);
         }
     }
 

@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static java.util.Objects.isNull;
-import static ru.ixec.easyfinance.type.InquiryType.*;
+import static ru.ixec.easyfinance.type.ActionType.*;
 
 @Setter
 @Getter
@@ -86,13 +86,12 @@ public class EasyFinanceBot extends TelegramLongPollingBot {
                     lastInquiryEntity = InquiryFactory.createInquiry(message.getText(), accountEntity);
                     sendMessage(message, lastInquiryEntity.getTextInfo(), true);
                 } else {
-                    String textMessage;
                     if (message.hasPhoto() && lastInquiryEntity instanceof ExpenseInquiry) {
-                        textMessage = getQRDataFromPhoto(message);
+                        lastInquiryEntity.setText(getQRDataFromPhoto(message));
                     } else {
-                        textMessage = message.getText();
+                        lastInquiryEntity.setText(message.getText());
                     }
-                    InquiryResponse response = lastInquiryEntity.process(textMessage);
+                    InquiryResponse response = lastInquiryEntity.process();
                     sendMessage(message, response.getMessage(), response.isCancelMode());
                 }
             } catch (NullPointerException e) {

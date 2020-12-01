@@ -15,7 +15,7 @@ public class AccountEntity {
     private Long accountId;
     private String name;
     private Long amount;
-    private Boolean main;
+    private boolean main;
     private AccountType accountType;
 
     @ManyToOne
@@ -29,4 +29,21 @@ public class AccountEntity {
 
     @OneToMany(mappedBy = "account")
     private List<LoanEntity> loanList;
+
+    @OneToMany(mappedBy = "in")
+    private List<TransferEntity> inTransferList;
+
+    @OneToMany(mappedBy = "out")
+    private List<TransferEntity> outTransferList;
+
+    @OneToMany(mappedBy = "account")
+    private List<ClientHistoryEntity> clientHistoryList;
+
+    public void addAmount(long difference) {
+        this.amount = amount + difference;
+    }
+
+    public void subAmount(long difference) {
+        this.amount = amount - difference;
+    }
 }

@@ -10,7 +10,7 @@ import ru.ixec.easyfinance.entity.ExpenseEntity;
 import ru.ixec.easyfinance.entity.ExpenseProductEntity;
 import ru.ixec.easyfinance.entity.InquiryEntity;
 import ru.ixec.easyfinance.service.ExpenseService;
-import ru.ixec.easyfinance.type.InquiryType;
+import ru.ixec.easyfinance.type.ActionType;
 import ru.ixec.easyfinance.utils.ApplicationContextUtils;
 
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ public class ExpenseInquiry extends Inquiry {
     private final Receipt receipt;
 
     public ExpenseInquiry(AccountEntity accountEntity) {
-        super(InquiryType.EXPENSE, accountEntity);
+        super(ActionType.EXPENSE, accountEntity);
         ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
         expS = (ExpenseService) appCtx.getBean("expenseService");
         receipt = (Receipt) appCtx.getBean("receipt");
@@ -37,35 +37,37 @@ public class ExpenseInquiry extends Inquiry {
     }
 
     @Override
-    public InquiryResponse process(String textMessage) {
-        this.setText(textMessage);
+    public InquiryResponse process() {
+        log.info("PROCESS ExpenseInquiry(inquiryId: {}, text: {}, type: {}, date: {}, completed: {})", getId(), getText(), getType(), getDate(), isCompleted());
         try {
-            if (textMessage.equals("Отмена")) {
+            if (textEquals("Отмена")) {
                 return cancel();
-            } else if (isNameValueParam(textMessage)) {
-                return savePurchase(textMessage);
+            } else if (isDoubleParam()) {
+                return savePurchase();
             } else {
-                return saveReceipt(textMessage);
+                return saveReceipt();
             }
         } catch (JSONException | NullPointerException e) {
             throw new BotException("Ошибка добавления!", true);
         }
     }
 
-    private InquiryResponse savePurchase(String textMessage) {
-        String name = getNameFromParam(textMessage);
-        double value = getValueFromParam(textMessage);
+    private InquiryResponse savePurchase() {
+        String name = getNameFromParam(0);
+        long value = getValueFromParam(1);
+        setAmount(value);
         ExpenseProductEntity expenseProductEntity = new ExpenseProductEntity(name, null);
-        ExpenseEntity expenseEntity = new ExpenseEntity(LocalDateTime.now(), (long) value, (long) value, 1.0, expenseProductEntity);
+        ExpenseEntity expenseEntity = new ExpenseEntity(LocalDateTime.now(), value, expenseProductEntity);
         expS.save(expenseEntity, getAccountEntity());
         complete();
-        return new InquiryResponse("Покупка добавлена!", false);
+        return new InquiryResponse("Расход добавлена!", false);
     }
 
-    private InquiryResponse saveReceipt(String qr) throws JSONException {
-        receipt.setQR(qr);
+    private InquiryResponse saveReceipt() throws JSONException {
+        receipt.setQR(getText());
         List<ExpenseEntity> expenses = receipt.getExpenses();
-        expS.saveAll(expenses, getAccountEntity());
+        setAmount(receipt.getSum());
+        expS.saveAll(expenses, getAccountEntity(), getAmount());
         complete();
         receipt.clear();
         return new InquiryResponse("Чек добавлен!", false);

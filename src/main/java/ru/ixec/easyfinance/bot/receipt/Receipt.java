@@ -122,6 +122,10 @@ public class Receipt {
         }};
     }
 
+    public long getSum() {
+        return (long) Double.parseDouble(S) * 100;
+    }
+
     /**
      * @param data - строка типа: s=2711.51
      * @return value s=2711.51 -> 2711.51

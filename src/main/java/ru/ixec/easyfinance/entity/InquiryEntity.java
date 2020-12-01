@@ -3,7 +3,7 @@ package ru.ixec.easyfinance.entity;
 import lombok.Getter;
 import lombok.Setter;
 import ru.ixec.easyfinance.bot.inquiry.Inquiry;
-import ru.ixec.easyfinance.type.InquiryType;
+import ru.ixec.easyfinance.type.ActionType;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -20,8 +20,9 @@ public class InquiryEntity {
     @GeneratedValue
     private Long inquiryId;
     private String text;
-    private InquiryType type;
+    private ActionType type;
     private LocalDateTime date;
+    private Long amount;
     private Boolean completed = false;
 
     @ManyToOne
@@ -36,6 +37,7 @@ public class InquiryEntity {
         this.text = inquiry.getText();
         this.type = inquiry.getType();
         this.date = inquiry.getDate();
+        this.amount = inquiry.getAmount();
         this.completed = inquiry.isCompleted();
         this.client = inquiry.getClientEntity();
     }

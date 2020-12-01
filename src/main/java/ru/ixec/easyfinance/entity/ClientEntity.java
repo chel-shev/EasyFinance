@@ -6,10 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -23,7 +20,7 @@ public class ClientEntity {
 
     @Id
     @GeneratedValue
-    private Long userId;
+    private Long clientId;
     private String username;
     private String email;
     private Long chatId;
@@ -31,7 +28,7 @@ public class ClientEntity {
     @JsonProperty(access = Access.WRITE_ONLY)
     private String password;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
     private List<AccountEntity> accountList;
 
     @OneToMany(mappedBy = "client")

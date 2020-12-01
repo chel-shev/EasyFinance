@@ -7,7 +7,6 @@ import ru.ixec.easyfinance.entity.ExpenseProductEntity;
 
 import java.util.Optional;
 
-@Repository
 public interface ExpenseProductRepository extends CrudRepository<ExpenseProductEntity, Long> {
 
     Optional<ExpenseProductEntity> getByNameAndExpenseCategoryName(String expenseProductName, String expenseCategoryName);

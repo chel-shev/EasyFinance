@@ -2,7 +2,10 @@ package ru.ixec.easyfinance.entity;
 
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
 import static java.util.Objects.isNull;
@@ -36,6 +39,14 @@ public class ExpenseEntity {
         this.price = price;
         this.sum = sum;
         this.quantity = quantity;
+        this.expenseProduct = expenseProduct;
+    }
+
+    public ExpenseEntity(LocalDateTime date, Long sum, ExpenseProductEntity expenseProduct){
+        this.date = date;
+        this.price = sum;
+        this.sum = sum;
+        this.quantity = 1.0;
         this.expenseProduct = expenseProduct;
     }
 
