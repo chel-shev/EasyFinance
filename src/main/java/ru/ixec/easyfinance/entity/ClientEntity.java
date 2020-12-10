@@ -22,6 +22,8 @@ public class ClientEntity {
     @GeneratedValue
     private Long clientId;
     private String username;
+    private String firstName;
+    private String lastName;
     private String email;
     private Long chatId;
 

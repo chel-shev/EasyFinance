@@ -20,7 +20,7 @@ public class ExpenseEntity {
     private LocalDateTime date;
     private Long price;
     private Double quantity;
-    private Long sum;
+    private Long amount;
     private boolean checked;
     private boolean deleted;
     private boolean confirmed;
@@ -37,15 +37,15 @@ public class ExpenseEntity {
     public ExpenseEntity(LocalDateTime date, Long price, Long sum, Double quantity, ExpenseProductEntity expenseProduct) {
         this.date = date;
         this.price = price;
-        this.sum = sum;
+        this.amount = sum;
         this.quantity = quantity;
         this.expenseProduct = expenseProduct;
     }
 
-    public ExpenseEntity(LocalDateTime date, Long sum, ExpenseProductEntity expenseProduct){
+    public ExpenseEntity(LocalDateTime date, Long amount, ExpenseProductEntity expenseProduct){
         this.date = date;
-        this.price = sum;
-        this.sum = sum;
+        this.price = amount;
+        this.amount = amount;
         this.quantity = 1.0;
         this.expenseProduct = expenseProduct;
     }

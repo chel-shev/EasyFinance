@@ -34,6 +34,4 @@ public class IncomeEntity {
         this.incomeCategory = incomeCategory;
         this.account = account;
     }
-
-
 }

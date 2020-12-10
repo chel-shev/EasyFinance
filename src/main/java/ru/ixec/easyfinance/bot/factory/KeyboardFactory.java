@@ -25,7 +25,6 @@ import static ru.ixec.easyfinance.type.ActionType.*;
 public class KeyboardFactory {
 
     public static ReplyKeyboardMarkup createKeyboard(KeyboardType type, ClientEntity client) {
-
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setSelective(true);
         keyboardMarkup.setResizeKeyboard(true);

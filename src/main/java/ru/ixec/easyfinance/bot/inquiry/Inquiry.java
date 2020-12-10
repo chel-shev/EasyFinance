@@ -127,8 +127,4 @@ public abstract class Inquiry {
     public boolean isDoubleParam() {
         return getText().split(":").length == 2;
     }
-
-    public boolean isTripleParam() {
-        return getText().split(":").length == 3;
-    }
 }

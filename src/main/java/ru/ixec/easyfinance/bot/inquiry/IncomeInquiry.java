@@ -55,6 +55,4 @@ public class IncomeInquiry extends Inquiry {
         complete();
         return new InquiryResponse("Доход добавлен!", KeyboardType.INQUIRIES);
     }
-
-
 }

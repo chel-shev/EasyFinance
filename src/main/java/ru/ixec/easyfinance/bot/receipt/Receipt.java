@@ -123,7 +123,7 @@ public class Receipt {
     }
 
     public long getSum() {
-        return (long) Double.parseDouble(S) * 100;
+        return (long) (Double.parseDouble(S) * 100d);
     }
 
     /**

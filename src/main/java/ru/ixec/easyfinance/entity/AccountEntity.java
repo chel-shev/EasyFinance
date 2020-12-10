@@ -8,6 +8,8 @@ import ru.ixec.easyfinance.type.KeyboardType;
 import javax.persistence.*;
 import java.util.List;
 
+import static java.util.Objects.isNull;
+
 @Data
 @Entity(name = "account")
 public class AccountEntity {
@@ -16,7 +18,7 @@ public class AccountEntity {
     @GeneratedValue
     private Long accountId;
     private String name;
-    private Long amount;
+    private Long accountBalance;
     private Long volume;
     private boolean main;
     private AccountType accountType;
@@ -46,18 +48,18 @@ public class AccountEntity {
     private List<InquiryEntity> accountOutList;
 
     @OneToMany(mappedBy = "account")
-    private List<ClientHistoryEntity> clientHistoryList;
+    private List<AccountHistoryEntity> clientHistoryList;
 
-    public void addAmount(long difference) {
-        if (amount + difference > volume)
+    public void addAccountBalance(long difference) {
+        if (!isNull(volume) && accountBalance + difference > volume)
             throw new BotException("Сумма пополнения слишком большая!", KeyboardType.CANCEL);
-        this.amount = amount + difference;
+        this.accountBalance = accountBalance + difference;
     }
 
-    public void subAmount(long difference) {
-        if (amount - difference < 0)
+    public void subAccountBalance(long difference) {
+        if (accountBalance - difference < 0)
             throw new BotException("Недостаточно средств на счете!", KeyboardType.CANCEL);
-        this.amount = amount - difference;
+        this.accountBalance = accountBalance - difference;
     }
 
     public String getInfoString() {
@@ -65,10 +67,10 @@ public class AccountEntity {
         switch (this.getAccountType()) {
             case CASH:
             case DEBIT:
-                amount = String.valueOf((long) (this.getAmount() / 100d));
+                amount = String.valueOf((long) (this.getAccountBalance() / 100d));
                 break;
             case CREDIT:
-                amount = String.valueOf((long) (this.getAmount() / 100d - this.getVolume() / 100d));
+                amount = String.valueOf((long) (this.getAccountBalance() / 100d - this.getVolume() / 100d));
                 break;
         }
         return getAccountType().getIcon() + " " + getName() + " (" + amount + ")";

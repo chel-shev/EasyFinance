@@ -13,7 +13,6 @@ import ru.ixec.easyfinance.type.ActionType;
 import ru.ixec.easyfinance.type.KeyboardType;
 import ru.ixec.easyfinance.utils.ApplicationContextUtils;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
 import static java.util.Objects.isNull;
@@ -69,7 +68,7 @@ public class TransferInquiry extends Inquiry {
     public InquiryResponse setAccountFromText(String accountName) {
         if (accountName.equals("Отмена"))
             return cancel();
-        AccountEntity account = getAccount(accountName.split(" ")[0]);
+        AccountEntity account = getAccount(accountName.split(" ")[1]);
         if (isNull(this.getAccount())) {
             this.setAccount(account);
             getInqS().save(getEntity());

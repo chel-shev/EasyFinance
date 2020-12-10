@@ -2,10 +2,10 @@ package ru.ixec.easyfinance.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.ixec.easyfinance.entity.AccountEntity;
-import ru.ixec.easyfinance.entity.ExpenseEntity;
-import ru.ixec.easyfinance.entity.ExpenseProductEntity;
-import ru.ixec.easyfinance.repositories.*;
+import ru.ixec.easyfinance.entity.*;
+import ru.ixec.easyfinance.repositories.ClientHistoryRepository;
+import ru.ixec.easyfinance.repositories.ExpenseRepository;
+import ru.ixec.easyfinance.type.ActionType;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -17,6 +17,7 @@ public class ExpenseService {
     private final ExpenseProductService expProS;
     private final ExpenseRepository expR;
     private final AccountService accS;
+    private final ClientHistoryRepository cliHisR;
 
     public Iterable<ExpenseEntity> get() {
         return expR.findAllByConfirmed(false);
@@ -40,15 +41,19 @@ public class ExpenseService {
         return expR.save(expense);
     }
 
-    public void save(ExpenseEntity expense, AccountEntity account, long sum){
-        account.subAmount(sum);
+    public void save(ExpenseEntity expense, AccountEntity account, long sum) {
+        account.subAccountBalance(sum);
         accS.save(account);
+        AccountHistoryEntity entity = new AccountHistoryEntity(null, sum, account.getAccountBalance(), ActionType.EXPENSE, expense.getDate(), account);
+        cliHisR.save(entity);
         save(expense, account);
     }
 
     public void saveAll(List<ExpenseEntity> expenseList, AccountEntity account, long sum) {
-        account.subAmount(sum);
+        account.subAccountBalance(sum);
         accS.save(account);
+        AccountHistoryEntity entity = new AccountHistoryEntity(null, sum, account.getAccountBalance(), ActionType.EXPENSE, expenseList.get(0).getDate(), account);
+        cliHisR.save(entity);
         expenseList.forEach(expense -> save(expense, account));
     }
 
