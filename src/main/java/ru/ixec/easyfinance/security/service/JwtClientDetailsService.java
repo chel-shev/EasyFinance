@@ -16,14 +16,14 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class ClientDetailsService implements UserDetailsService {
+public class JwtClientDetailsService implements UserDetailsService {
 
     private final ClientRepository clientRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<ClientEntity> clientOptional = clientRepository.findByUsername(username);
-        ClientEntity clientEntity = clientOptional.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        ClientEntity clientEntity = clientOptional.orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("user"));
         return new ClientDetails(clientEntity.getUsername(), clientEntity.getPassword(), authorities, clientEntity);
     }

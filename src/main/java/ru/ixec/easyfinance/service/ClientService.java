@@ -26,8 +26,12 @@ public class ClientService {
         return cliR.save(client);
     }
 
+    public ClientEntity getClientByName(String name) {
+        return cliR.findByUsername(name).orElse(null);
+    }
+
     public ClientEntity getClientByChatId(Long chatId) {
-        return cliR.findByChatId(chatId).orElseThrow(() ->  new BotException("Пользователь не найден!", KeyboardType.CANCEL));
+        return cliR.findByChatId(chatId).orElseThrow(() -> new BotException("Пользователь не найден!", KeyboardType.CANCEL));
     }
 
     public List<AccountEntity> getAccountList(Long clientId) {

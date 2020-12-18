@@ -4,47 +4,39 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import ru.ixec.easyfinance.configurations.JwtTokenUtil;
-import ru.ixec.easyfinance.security.JwtRequest;
-import ru.ixec.easyfinance.security.JwtResponse;
-import ru.ixec.easyfinance.security.service.ClientDetailsService;
+import ru.ixec.easyfinance.entity.ClientEntity;
+import ru.ixec.easyfinance.security.dto.JwtRequest;
+import ru.ixec.easyfinance.security.dto.JwtResponse;
+import ru.ixec.easyfinance.security.JwtTokenProvider;
+import ru.ixec.easyfinance.service.ClientService;
+
+import static java.util.Objects.isNull;
 
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
 public class JwtAuthenticationController {
 
+    private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
-
-    private final JwtTokenUtil jwtTokenUtil;
-
-    private final ClientDetailsService userDetailsService;
+    private final ClientService clientService;
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        //JwtUserDetails userDetails = new JwtUserDetails();
-        //userDetails.setUsername(authenticationRequest.getUsername());
-
-
-        final String token = jwtTokenUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
-    }
-
-    private void authenticate(String username, String password) throws Exception {
+    public ResponseEntity<?> login(@RequestBody JwtRequest jwtRequest) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            String username = jwtRequest.getUsername();
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, jwtRequest.getPassword()));
+            ClientEntity clientEntity = clientService.getClientByName(username);
+            if (isNull(clientEntity))
+                throw new UsernameNotFoundException("User not found!");
+            String token = jwtTokenProvider.createToken(username);
+            return ResponseEntity.ok(new JwtResponse(username, token));
+        } catch (AuthenticationException e) {
+            throw new BadCredentialsException("Invalid username or password");
         }
     }
-
 }

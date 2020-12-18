@@ -22,7 +22,7 @@ import static ru.ixec.easyfinance.type.ActionType.*;
 
 @Component
 @RequiredArgsConstructor
-public class KeyboardFactory {
+public final class KeyboardFactory {
 
     public static ReplyKeyboardMarkup createKeyboard(KeyboardType type, ClientEntity client) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();

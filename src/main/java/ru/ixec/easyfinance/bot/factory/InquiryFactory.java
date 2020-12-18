@@ -7,7 +7,7 @@ import ru.ixec.easyfinance.exception.BotException;
 import ru.ixec.easyfinance.type.ActionType;
 import ru.ixec.easyfinance.type.KeyboardType;
 
-public class InquiryFactory {
+public final class InquiryFactory {
 
     public static void initInquiry(String typeText, ClientEntity client) {
         try {
