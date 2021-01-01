@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import ru.ixec.easyfinance.security.JwtConfigurer;
 import ru.ixec.easyfinance.security.JwtRequestFilter;
-import ru.ixec.easyfinance.security.service.JwtClientDetailsService;
 
 @Configuration
 @EnableConfigurationProperties
@@ -20,12 +19,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final JwtRequestFilter jwtRequestFilter;
 
-    private final JwtClientDetailsService jwtClientDetailsService;
-
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/client/signup");
+        web.ignoring().antMatchers("/client/signup", "/dashboard");
     }
 
     @Override

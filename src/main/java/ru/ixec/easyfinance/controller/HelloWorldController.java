@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class HelloWorldController {
 
+    @RequestMapping("protected/dashboard")
+    public String secondPage() {
+        return "success";
+    }
+
     @RequestMapping("/dashboard")
     public String firstPage() {
         return "success";

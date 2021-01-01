@@ -9,6 +9,8 @@ public interface ClientRepository extends CrudRepository<ClientEntity, Long> {
 
     Boolean existsByUsername(String username);
 
+    Optional<ClientEntity> findByUsernameOrEmail(String username, String email);
+
     Optional<ClientEntity> findByUsername(String username);
 
     ClientEntity findByClientId(Long clientId);
